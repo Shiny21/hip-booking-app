@@ -2,6 +2,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 const path = require('path');
 
+const AUTH_APP_URL = process.env.AUTH_APP_URL || 'http://localhost:3001/remoteEntry.js';
+
 module.exports = {
   entry: './src/index',
   mode: 'development',
@@ -30,9 +32,9 @@ module.exports = {
         },
       },
       {
-      test: /\.css$/,  // ✅ add this rule
-      use: ['style-loader', 'css-loader'],
-    },
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   plugins: [
@@ -40,17 +42,17 @@ module.exports = {
       name: 'bookingApp',
       filename: 'remoteEntry.js',
       remotes: {
-        authApp: 'authApp@http://localhost:3001/remoteEntry.js', // ✅ references authApp container
+        authApp: `authApp@${AUTH_APP_URL}`, // ✅ use env variable
       },
-    exposes: {
-    'BookingForm': './src/components/BookingForm',
-    'BookingList': './src/components/BookingList',
-    },
-    shared: {
-    react: { singleton: true, requiredVersion: '^18.2.0' },
-    'react-dom': { singleton: true, requiredVersion: '^18.2.0' }
-    }
-}),
+      exposes: {
+        'BookingForm': './src/components/BookingForm',
+        'BookingList': './src/components/BookingList',
+      },
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.2.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.2.0' },
+      },
+    }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
     }),
